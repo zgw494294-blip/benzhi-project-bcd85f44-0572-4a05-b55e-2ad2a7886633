@@ -101,6 +101,9 @@ func (t Trial) Validate() error {
 			if err := validatePercent(result.LossPercent, "loss percentage"); err != nil {
 				return err
 			}
+			if result.LossPercent > t.MaximumLossPercent && noteIsMissing(result.Note) {
+				return fmt.Errorf("%w: note is required for an over-limit result", ErrInvalidTrial)
+			}
 		}
 	}
 	if t.Status == StatusActive {
@@ -150,7 +153,7 @@ func (t *Trial) Record(panel string, lossPercent float64, note *string) error {
 		return err
 	}
 	cleanNote := cleanNoteValue(note)
-	if lossPercent > t.MaximumLossPercent && (cleanNote == nil || strings.TrimSpace(*cleanNote) == "") {
+	if lossPercent > t.MaximumLossPercent && noteIsMissing(cleanNote) {
 		return fmt.Errorf("%w: note is required for an over-limit result", ErrInvalidTrial)
 	}
 	if t.Results == nil {
@@ -258,6 +261,10 @@ func cleanNoteValue(note *string) *string {
 		return nil
 	}
 	return &clean
+}
+
+func noteIsMissing(note *string) bool {
+	return note == nil || strings.TrimSpace(*note) == ""
 }
 
 func cloneResults(results map[string]PanelResult) map[string]PanelResult {

@@ -219,6 +219,13 @@ func (r Report) validateFor(t Trial) error {
 			return fmt.Errorf("%w: report results do not match trial", ErrInvalidTrial)
 		}
 	}
+	if r.Accepted {
+		for _, result := range r.Results {
+			if result.LossPercent > r.MaximumLossPercent {
+				return fmt.Errorf("%w: accepted report has an over-limit result", ErrInvalidTrial)
+			}
+		}
+	}
 	return nil
 }
 

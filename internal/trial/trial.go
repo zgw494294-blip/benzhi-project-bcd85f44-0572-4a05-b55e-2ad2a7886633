@@ -101,6 +101,9 @@ func (t Trial) Validate() error {
 			if err := validatePercent(result.LossPercent, "loss percentage"); err != nil {
 				return err
 			}
+			if result.LossPercent > t.MaximumLossPercent && (result.Note == nil || strings.TrimSpace(*result.Note) == "") {
+				return fmt.Errorf("%w: note is required for an over-limit result", ErrInvalidTrial)
+			}
 		}
 	}
 	if t.Status == StatusActive {

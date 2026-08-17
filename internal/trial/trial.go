@@ -213,11 +213,18 @@ func (r Report) validateFor(t Trial) error {
 	if len(r.Results) != len(t.Results) {
 		return fmt.Errorf("%w: report results do not match trial", ErrInvalidTrial)
 	}
+	expectedAccepted := true
 	for panel, result := range t.Results {
 		reported, ok := r.Results[panel]
 		if !ok || reported.LossPercent != result.LossPercent || !sameNote(reported.Note, result.Note) {
 			return fmt.Errorf("%w: report results do not match trial", ErrInvalidTrial)
 		}
+		if result.LossPercent > t.MaximumLossPercent {
+			expectedAccepted = false
+		}
+	}
+	if r.Accepted != expectedAccepted {
+		return fmt.Errorf("%w: report acceptance does not match results", ErrInvalidTrial)
 	}
 	return nil
 }

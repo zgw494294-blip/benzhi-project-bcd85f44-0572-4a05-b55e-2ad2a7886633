@@ -197,7 +197,9 @@ func (t *Trial) Finalize() (Report, error) {
 	}
 	t.Status = StatusFinalized
 	t.Report = &report
-	return report, nil
+	result := report
+	result.Results = cloneResults(report.Results)
+	return result, nil
 }
 
 func (r Report) validateFor(t Trial) error {

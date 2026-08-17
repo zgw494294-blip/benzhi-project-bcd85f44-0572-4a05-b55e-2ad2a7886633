@@ -86,8 +86,14 @@ func (t Trial) Validate() error {
 	if err := validatePercent(t.MaximumLossPercent, "maximum loss percentage"); err != nil {
 		return err
 	}
-	if _, err := normalizePanelLabels(t.PanelLabels); err != nil {
+	labels, err := normalizePanelLabels(t.PanelLabels)
+	if err != nil {
 		return err
+	}
+	for i, label := range labels {
+		if label != t.PanelLabels[i] {
+			return fmt.Errorf("%w: panel label %q is not canonical", ErrInvalidTrial, t.PanelLabels[i])
+		}
 	}
 	if t.Results == nil {
 		if t.Status != StatusActive {
